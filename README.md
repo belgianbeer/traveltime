@@ -12,3 +12,21 @@ Traveltime requires a minimum of four arguments. Time and time zone of origin, a
 If the arrival time is the next day or the day after next, specify +1 or +2 at the end.
 
 If it exceeds 24 hours, set the -d option to display the combination of day and time.
+
+## Example
+
+Flight JL1 departs San Francisco at 12:20 and arrives at Haneda at 15:10 the next day. In this case, specify as follows.
+
+```
+$ traveltime 12:20 Los_Angeles 15:10 Tokyo +1
+10:50   Los_Angeles -> Tokyo
+$ 
+```
+
+Flight AF275 departs Narita airport at 10:35 and arrives at CDG at 18:30. In this case, specify as follows.
+
+```
+$ traveltime 10:35 Tokyo 18:30 Paris
+14:55   Tokyo -> Paris
+$ 
+```
