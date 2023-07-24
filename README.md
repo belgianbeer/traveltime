@@ -4,4 +4,4 @@ Calculate time differences in different time zones
 
 ## Usage
 
-    Usage: traveltime [-d] dep_time dep_tz ariv_time ariv_tz [+n]
+    Usage: traveltime [-d] dep_time dep_timezone arr_time arr_timezone [+n]

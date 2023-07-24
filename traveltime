@@ -26,7 +26,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.6 2023/07/24 06:56:26 minmin Exp $
+#  $Id: traveltime,v 1.7 2023/07/24 07:55:27 minmin Exp $
 
 version=1.0
 format='%F %R %Z'
@@ -34,7 +34,7 @@ format='%F %R %Z'
 inter_form=%FT%H:%M
 
 __usage () {
-	echo "Usage: ${0##*/} [-d] dep_time dep_tz ariv_time ariv_tz [+n]" >&2
+	echo "Usage: ${0##*/} [-d] dep_time dep_timezone arr_time arr_timezone [+n]" >&2
 	exit 1
 }
 
