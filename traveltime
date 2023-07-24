@@ -26,15 +26,14 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.8 2023/07/24 15:17:55 minmin Exp $
+#  $Id: traveltime,v 1.9 2023/07/24 23:33:34 minmin Exp $
 
-version=1.0
-format='%F %R %Z'
+version=0.1
 
 inter_form=%FT%R
 
 __usage () {
-	echo "Usage: ${0##*/} [-d] dep_time dep_timezone arr_time arr_timezone [+n]" >&2
+	echo "Usage: ${0##*/} [-dv] dep_time dep_timezone arr_time arr_timezone [+n]" >&2
 	exit 1
 }
 
@@ -143,6 +142,9 @@ __check_args () {
 			;;
 		-d)
 			d_flag=YES
+			;;
+		-v)
+			echo ${0##*/} $version ; exit
 			;;
 		*)
 			if [ -z "$dep_tzone" ]; then
