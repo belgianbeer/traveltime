@@ -1,0 +1,230 @@
+#!/bin/sh
+#
+#  flighttime - 
+#
+#  Copyright (c) 2023 Masato Minda
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+#  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+#  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#  SUCH DAMAGE.
+#
+#  $Id: traveltime,v 1.6 2023/07/24 06:56:26 minmin Exp $
+
+version=1.0
+format='%F %R %Z'
+
+inter_form=%FT%H:%M
+
+__usage () {
+	echo "Usage: ${0##*/} [-d] dep_time dep_tz ariv_time ariv_tz [+n]" >&2
+	exit 1
+}
+
+__check_match () {
+	if [ `echo ${1} | wc -w` -eq 1 ]; then
+		return 0
+	fi
+	ls -dF ${1}
+	exit 1
+}
+
+__set_zoneinfo () {
+	case "${1}" in
+	*\**)
+		__check_match "${1}*"
+		zi=`echo ${1}*`
+		;;
+
+	*)	zi=${1}
+		;;
+	esac
+
+	while [ ! -f ${zi} ]; do
+		if [ -d ${zi} ]; then
+			ls -dF ${zi}/*
+			exit 1
+		fi
+
+		__check_match "${zi}*"
+		zi=`echo ${zi}*`
+		if [ ! -e ${zi} ]; then
+			__check_match "*/${zi}"
+			zi=`echo */${zi}`
+			if [ ! -e ${zi} ]; then
+				__check_match "*/${zi}"
+				zi=`echo */${zi}`
+				if [ ! -e ${zi} ]; then
+					ls -F
+					exit 2
+				fi
+			fi
+		fi
+	done
+
+	case ${zi} in
+	*/*)	city=${zi##*/} ;;
+	*)	city=${zi} ;;
+	esac
+}
+
+
+__set_time () {
+	if [ -n "$gnudate" ]; then
+		date -d $1 +"${inter_form}" || exit
+	else
+		case $1 in
+
+		[0-9][0-9][0-9][0-9])
+			date -j -f %H%M $1 +"${inter_form}" || exit;;
+			# echo $year-$month-$date.$(echo $1 | sed 's/^../&:/') ;;
+
+		[0-9][0-9]:[0-9][0-9])
+			date -j -f %H:%M $1 +"${inter_form}" || exit;;
+			# echo $year-$month-$date.$1 ;;
+
+		[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])
+			date -j -f %m%d%H%M $1 +"${inter_form}" || exit;;
+			# echo $year-$(echo $1 | sed 's/^\(..\)\(..\)\(..\)/\1-\2.\3:/') ;;
+
+		[0-9][0-9]-[0-9][0-9].[0-9][0-9]:[0-9][0-9])
+			date -j -f %m-%d.%H:%M $1 +"${inter_form}" || exit;;
+			# echo $year-$1 ;;
+
+		[0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9] | \
+		[0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]T[012][0-9][0-5][0-9] | \
+		[0-9][0-9][0-9][0-9][01][0-9][0-3][0-9][012][0-9][0-5][0-9] )
+			tis=`COMMAND_MODE=legacy date -j +%s $(echo ${1} | tr -d 'T:-')` || exit
+			;;
+
+		*)			echo $1 ;;
+		esac
+	fi
+}
+
+__check_args () {
+	offset=0
+	while [ $# -gt 0 ]; do
+		case $1 in
+
+		[0-9]*)
+			if [ -z "$dep_time" ]; then
+				dep_time=$(__set_time $1)
+			elif [ -z "$arv_time" ]; then
+				arv_time=$(__set_time $1)
+			else
+				__usage
+			fi
+			;;
+		+*)
+			offset=$(($1 * 86400))
+			;;
+		-d)
+			d_flag=YES
+			;;
+		*)
+			if [ -z "$dep_tzone" ]; then
+				__set_zoneinfo "$1"
+				dep_city="${city}"
+				dep_tzone="${zi}"
+			elif [ -z "$arv_tzone" ]; then
+				__set_zoneinfo "$1"
+				arv_city="${city}"
+				arv_tzone="${zi}"
+			else
+				__usage
+			fi
+			;;
+		esac
+
+		shift
+	done
+
+	if [ -z "${arv_city}" ] || [ -z "${arv_tzone}" ]; then
+		__usage
+	fi
+}
+
+__calculate_time () {
+
+	if [ -n "$gnudate" ]; then
+		_arv=$(TZ=${arv_tzone} date -d "${arv_time}" +%s)
+		_dep=$(TZ=${dep_tzone} date -d "${dep_time}" +%s)
+	else
+		_arv=$(TZ=${arv_tzone} date -j -f "${inter_form}" ${arv_time} +%s)
+		_dep=$(TZ=${dep_tzone} date -j -f "${inter_form}" ${dep_time} +%s)
+	fi
+	
+
+	ft_sec=$(( ${_arv} + ${offset} - ${_dep} ))
+
+	# echo "DEBUG ${_arv} + ${offset} - ${_dep} = ${ft_sec}"
+
+	while [ ${ft_sec} -le 0 ]; do
+		ft_sec=$((ft_sec + 86400))
+	done
+}
+
+__print_time_old () {
+	out_form='%k:%M'
+
+	if [ ${ft_sec} -le 0 ]; then
+		ft_sec=$((ft_sec + 86400))
+	elif [ ${ft_sec} -ge 86400 ]; then
+		days="$((ft_sec / 86400))d "
+		# out_form='%ed %k:%M'
+	fi
+
+	if [ -n "$gnudate" ]; then
+		flight_time=$(TZ=UTC date -d "@$ft_sec" +"$out_form")
+	else
+		flight_time=$(TZ=UTC date -j -r $ft_sec +"$out_form")
+	fi
+}
+
+__print_time () {
+
+	day=0
+	hour=$((ft_sec / 3600))
+	min=$((ft_sec % 3600 / 60))
+
+	if [ -n "$d_flag" ]; then
+		day=$((hour / 24))
+		hour=$((hour % 24))
+	fi
+
+	if [ "$day" -gt 0 ]; then
+		printf "%dd %d:%02d\t%s -> %s\n" $day $hour $min ${dep_city} ${arv_city}
+	else
+		printf "%d:%02d\t%s -> %s\n" $hour $min ${dep_city} ${arv_city}
+	fi
+}
+
+cd /usr/share/zoneinfo || exit
+if date --version >/dev/null 2>&1 ; then
+	gnudate=YES
+fi
+
+__check_args "$@"
+
+__calculate_time 
+
+__print_time
+
