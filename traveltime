@@ -26,12 +26,12 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.7 2023/07/24 07:55:27 minmin Exp $
+#  $Id: traveltime,v 1.8 2023/07/24 15:17:55 minmin Exp $
 
 version=1.0
 format='%F %R %Z'
 
-inter_form=%FT%H:%M
+inter_form=%FT%R
 
 __usage () {
 	echo "Usage: ${0##*/} [-d] dep_time dep_timezone arr_time arr_timezone [+n]" >&2
@@ -87,26 +87,31 @@ __set_zoneinfo () {
 
 
 __set_time () {
+	local _t=$1
+
 	if [ -n "$gnudate" ]; then
-		date -d $1 +"${inter_form}" || exit
+		date -d "${_t}" +"${inter_form}" || exit
 	else
-		case $1 in
+		case "${_t}" in
+
+		[0-9][0-9][0-9])
+			_t="0${_t}" 
+			date -j -f %H%M "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9][0-9][0-9])
-			date -j -f %H%M $1 +"${inter_form}" || exit;;
-			# echo $year-$month-$date.$(echo $1 | sed 's/^../&:/') ;;
+			date -j -f %H%M "${_t}" +"${inter_form}" || exit ;;
+
+		[0-9]:[0-9][0-9])
+			date -j -f %l:%M "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9]:[0-9][0-9])
-			date -j -f %H:%M $1 +"${inter_form}" || exit;;
-			# echo $year-$month-$date.$1 ;;
+			date -j -f %R "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])
-			date -j -f %m%d%H%M $1 +"${inter_form}" || exit;;
-			# echo $year-$(echo $1 | sed 's/^\(..\)\(..\)\(..\)/\1-\2.\3:/') ;;
+			date -j -f %m%d%H%M "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9]-[0-9][0-9].[0-9][0-9]:[0-9][0-9])
-			date -j -f %m-%d.%H:%M $1 +"${inter_form}" || exit;;
-			# echo $year-$1 ;;
+			date -j -f %m-%d.%H:%M "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9] | \
 		[0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]T[012][0-9][0-5][0-9] | \
@@ -114,7 +119,7 @@ __set_time () {
 			tis=`COMMAND_MODE=legacy date -j +%s $(echo ${1} | tr -d 'T:-')` || exit
 			;;
 
-		*)			echo $1 ;;
+		*)			echo "${_t}" ;;
 		esac
 	fi
 }
