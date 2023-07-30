@@ -26,9 +26,9 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.11 2023/07/30 23:54:44 minmin Exp $
+#  $Id: traveltime,v 1.12 2023/07/30 23:58:34 minmin Exp $
 
-version=0.1
+version=0.2
 
 inter_form=%FT%R
 
