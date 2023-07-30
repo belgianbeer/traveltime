@@ -26,7 +26,7 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.9 2023/07/24 23:33:34 minmin Exp $
+#  $Id: traveltime,v 1.10 2023/07/30 05:07:45 minmin Exp $
 
 version=0.1
 
@@ -100,8 +100,14 @@ __set_time () {
 		[0-9][0-9][0-9][0-9])
 			date -j -f %H%M "${_t}" +"${inter_form}" || exit ;;
 
+		[0-9]:[0-9][0-9][AaPp][Mm])
+			date -j -f %l:%M%p "${_t}" +"${inter_form}" || exit ;;
+
 		[0-9]:[0-9][0-9])
 			date -j -f %l:%M "${_t}" +"${inter_form}" || exit ;;
+
+		[0-9][0-9]:[0-9][0-9][AaPp][Mm])
+			date -j -f %R%p "${_t}" +"${inter_form}" || exit ;;
 
 		[0-9][0-9]:[0-9][0-9])
 			date -j -f %R "${_t}" +"${inter_form}" || exit ;;
