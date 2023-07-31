@@ -1,6 +1,10 @@
-# traveltime
+# traveltime <!-- omit in toc -->
 
 Traveltime calculates the time difference between different time zones. It is useful for calculating flight times.
+
+- [Usage](#usage)
+- [Example](#example)
+- [Change Log](#change-log)
 
 
 ## Usage
@@ -32,3 +36,8 @@ $ traveltime 12:20 Los_Angeles 15:10 Tokyo +1
 10:50   Los_Angeles -> Tokyo
 $ 
 ```
+
+## Change Log
+
+- 2023-07-31 ver 0.2 Abort in format error (still Alpha)
+- 2023-07-25 ver 0.1 Initial release (Alpha quality)
