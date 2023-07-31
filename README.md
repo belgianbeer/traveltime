@@ -39,5 +39,5 @@ $
 
 ## Change Log
 
-- 2023-07-31 ver 0.2 Abort in format error (still Alpha)
+- 2023-07-31 ver 0.2 Support am/pm and abort in format error (still Alpha)
 - 2023-07-25 ver 0.1 Initial release (Alpha quality)
