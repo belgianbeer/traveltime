@@ -26,9 +26,9 @@
 #  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 #  SUCH DAMAGE.
 #
-#  $Id: traveltime,v 1.12 2023/07/30 23:58:34 minmin Exp $
+#  $Id: traveltime,v 1.13 2023/07/31 22:42:40 minmin Exp $
 
-version=0.2
+version=0.2.1
 
 inter_form=%FT%R
 
@@ -121,8 +121,8 @@ __set_time () {
 		[0-9][0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9] | \
 		[0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]T[012][0-9][0-5][0-9] | \
 		[0-9][0-9][0-9][0-9][01][0-9][0-3][0-9][012][0-9][0-5][0-9] )
-			tis=`COMMAND_MODE=legacy date -j +%s $(echo ${1} | tr -d 'T:-')` || exit
-			;;
+			COMMAND_MODE=legacy \
+				date -j $(echo ${1} | tr -d 'T:-') +"${inter_form}" || exit ;;
 
 		*)			echo "${_t}" ;;
 		esac
@@ -176,7 +176,6 @@ __check_args () {
 }
 
 __calculate_time () {
-
 	if [ -n "$gnudate" ]; then
 		_arv=$(TZ=${arv_tzone} date -d "${arv_time}" +%s)
 		_dep=$(TZ=${dep_tzone} date -d "${dep_time}" +%s)
@@ -185,10 +184,7 @@ __calculate_time () {
 		_dep=$(TZ=${dep_tzone} date -j -f "${inter_form}" ${dep_time} +%s)
 	fi
 	
-
 	ft_sec=$(( ${_arv} + ${offset} - ${_dep} ))
-
-	# echo "DEBUG ${_arv} + ${offset} - ${_dep} = ${ft_sec}"
 
 	while [ ${ft_sec} -le 0 ]; do
 		ft_sec=$((ft_sec + 86400))
