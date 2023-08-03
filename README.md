@@ -6,7 +6,6 @@ Traveltime calculates the time difference between different time zones. It is us
 - [Example](#example)
 - [Change Log](#change-log)
 
-
 ## Usage
 
     Usage: traveltime [-dv] dep_time dep_timezone arr_time arr_timezone [+n]
@@ -21,20 +20,25 @@ If it exceeds 24 hours, set the -d option to display the combination of day and 
 
 ## Example
 
-Flight AF275 departs Narita airport at 10:35 and arrives at Charles de Gaulle Airport at 18:30.
+Flight AF275 departs Narita Airport at 10:35 and arrives at Paris Charles de Gaulle Airport at 18:30.
 
 ```
 $ traveltime 10:35 Tokyo 18:30 Paris
 14:55   Tokyo -> Paris
-$ 
 ```
 
-Flight JL1 departs San Francisco at 12:20 and arrives at Haneda at 15:10 the next day. In this case, specify as follows.
+Flight JL1 departs San Francisco International Airport at 12:20 and arrives at Haneda Airport at 15:10 the next day. In this case, specify as follows.
 
 ```
 $ traveltime 12:20 Los_Angeles 15:10 Tokyo +1
 10:50   Los_Angeles -> Tokyo
-$ 
+```
+
+Flight DL120 departs Haneda Airport at 4:20pm and arrives at Minneapolis-Saint Paul International Airport at 1:50pm.
+
+```
+$ traveltime 4:20pm Tokyo 1:50pm Chicago
+11:30   Tokyo -> Chicago
 ```
 
 ## Change Log
