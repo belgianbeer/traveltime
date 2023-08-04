@@ -12,7 +12,9 @@ Traveltime calculates the time difference between different time zones. It is us
 
 Traveltime requires a minimum of four arguments. Time and time zone of origin, and time and time zone of destination.
 
-Note: It is the time zone that is specified, not the city name. For example, there is an airport in San Francisco, but specify Los Angeles for the time zone.
+Note: It is the time zone that is specified, not the city name.
+For example, there is an airport in San Francisco, but specify "America/Los_Angeles" the time zone.
+The time zone can be specified in the same way as for [tzdiff](https://github.com/belgianbeer/tzdiff).
 
 If the arrival time is the next day or the day after next, specify +1 or +2 at the end.
 
