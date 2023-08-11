@@ -27,7 +27,7 @@ If it exceeds 24 hours, set the -d option to display the combination of day and 
 Flight AF275 departs Narita Airport at 10:35 and arrives at Paris Charles de Gaulle Airport at 18:30.
 
 ```
-$ traveltime 10:35 Tokyo 18:30 Paris
+$ traveltime 10:35 Asia/Tokyo 18:30 Europe/Paris
 14:55   Tokyo -> Paris
 ```
 
